@@ -1,3 +1,5 @@
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,6 +15,7 @@ import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.Marker
+import androidx.core.graphics.drawable.toDrawable
 
 
 data class WaypointMarker(
@@ -85,13 +88,17 @@ class TrackMapView {
                                 }
                             }
 
-                            // Set custom icon if provided
-                            waypoint.icon?.let { iconRes ->
-                                try {
-                                    icon = ctx.getDrawable(iconRes)
-                                } catch (e: Exception) {
-                                    // Use default icon if custom icon fails to load
+                            if (waypoint.icon == null) {
+                                // Invisible dummy icon shape.
+                                val tinyCircle = GradientDrawable().apply {
+                                    shape = GradientDrawable.OVAL
+                                    setColor(android.graphics.Color.argb(0, 0, 0, 0))
+                                    setSize(80, 80)
                                 }
+                                icon = tinyCircle
+                            }
+                            else {
+                                icon = ctx.getDrawable(waypoint.icon)
                             }
                         }
                         overlays.add(marker)

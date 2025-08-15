@@ -149,7 +149,6 @@ class MainActivity : ComponentActivity() {
                 position = GeoPoint(47.0667, 15.45),
                 title = "Graz",
                 description = "Starting point",
-                icon = android.R.drawable.ic_menu_mylocation,
                 onClickCallback = {
                     // Custom action when marker is clicked
                     println("Clicked on Graz!")
@@ -160,7 +159,7 @@ class MainActivity : ComponentActivity() {
                 position = GeoPoint(48.2082, 16.3738),
                 title = "Vienna",
                 description = "Capital city",
-                icon = android.R.drawable.star_on,
+                icon = null,
                 onClickCallback = {
                     println("Clicked on Vienna!")
                     // Another custom action
