@@ -18,12 +18,32 @@ data class TripEntry(
 
 @Dao
 interface TripEntryDao {
-    @Query("SELECT * FROM tripentry")
+
+    // Fetching
+    @Query("SELECT * FROM TripEntry ORDER BY startTime DESC ")
     fun getAll(): List<TripEntry>
 
-    @Query("SELECT * FROM tripentry WHERE startTime = :startTime")
-    fun findByStartTime(startTime: Long): TripEntry
+    @Query("SELECT * FROM TripEntry WHERE startTime = :startTime")
+    fun getByStartTime(startTime: Long): TripEntry?
 
+    @Query("""
+        SELECT * FROM TripEntry WHERE
+            startTime = (
+              SELECT MAX(startTime) 
+              FROM TripEntry
+          )
+          """)
+    fun getLast() : TripEntry?
+
+    // Inserting
+    @Insert
+    fun createNew(tripEntry: TripEntry)
+
+    // Deleting
     @Delete
-    fun delete(tripEntry: TripEntry)
+    fun delete(tripEntry: TripEntry): Int
+
+    // Updating
+    @Query("UPDATE TripEntry SET finished = :finished WHERE startTime = :startTime")
+    fun setFinished(startTime: Long, finished: Boolean)
 }

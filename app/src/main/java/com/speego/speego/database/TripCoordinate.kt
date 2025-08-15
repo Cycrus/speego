@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import androidx.room.Insert
 import androidx.room.Query
 
 
@@ -26,6 +27,7 @@ data class TripCoordinate(
     val latitude: Double,
     val longitude: Double,
     val speed: Float,           // km/h
+    val avgspeed: Float,        // km/h
     val duration: Long,         // milliseconds
     val distance: Float         // km
 )
@@ -33,19 +35,28 @@ data class TripCoordinate(
 
 @Dao
 interface TripCoordinateDao {
-    @Query("SELECT * FROM tripcoordinate WHERE tripStartTime = :tripStartTime")
-    fun getAllOfTrip(tripStartTime: Long): List<TripEntry>
+    @Query("SELECT * FROM TripCoordinate WHERE tripStartTime = :tripStartTime")
+    fun getAllOfTrip(tripStartTime: Long): List<TripCoordinate>
 
     @Query("""
-        SELECT * FROM tripcoordinate WHERE tripStartTime = :tripStartTime
+        SELECT * FROM TripCoordinate WHERE tripStartTime = :tripStartTime
             AND sequenceNr = (
               SELECT MAX(sequenceNr) 
               FROM TripCoordinate 
               WHERE tripStartTime = :tripStartTime
           )
+          ORDER BY sequenceNr DESC 
           """)
-    fun getLastOfTrip(tripStartTime: Long) : TripEntry
+    fun getLastOfTrip(tripStartTime: Long) : TripCoordinate?
 
-    @Query("SELECT * FROM tripentry WHERE startTime LIKE :startTime")
-    fun findByStartTime(startTime: Long): TripEntry
+    @Query("""
+        SELECT * FROM TripCoordinate 
+        WHERE tripStartTime = :tripStartTime 
+        ORDER BY sequenceNr DESC 
+        LIMIT :n
+    """)
+    fun getLastNOfTrip(tripStartTime: Long, n: Int) : List<TripCoordinate>
+
+    @Insert
+    fun addNewCoordinate(tripCoordinate: TripCoordinate)
 }
