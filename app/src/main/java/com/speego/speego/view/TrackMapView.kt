@@ -33,6 +33,7 @@ data class TrackSegment(
     val width: Float = 8f
 )
 
+
 class TrackMapView {
     private var mapView: MapView? = null
 
@@ -141,13 +142,17 @@ class TrackMapView {
                 this.title = title
                 snippet = description
 
-                // Set custom icon if provided
-                iconRes?.let { icon ->
-                    try {
-                        this.icon = map.context.getDrawable(icon)
-                    } catch (e: Exception) {
-                        // Use default icon if custom icon fails to load
+                if (iconRes == null) {
+                    // Invisible dummy icon shape.
+                    val tinyCircle = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(android.graphics.Color.argb(0, 0, 0, 0))
+                        setSize(80, 80)
                     }
+                    icon = tinyCircle
+                }
+                else {
+                    icon = map.context.getDrawable(iconRes)
                 }
             }
             map.overlays.add(marker)
