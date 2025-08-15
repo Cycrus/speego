@@ -1,0 +1,123 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "31ffaeacb43e34b498abae145461e0b7",
+    "entities": [
+      {
+        "tableName": "TripEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`startTime` INTEGER NOT NULL, `finished` INTEGER NOT NULL, PRIMARY KEY(`startTime`))",
+        "fields": [
+          {
+            "fieldPath": "startTime",
+            "columnName": "startTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finished",
+            "columnName": "finished",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "startTime"
+          ]
+        }
+      },
+      {
+        "tableName": "TripCoordinate",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripStartTime` INTEGER NOT NULL, `sequenceNr` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `speed` REAL NOT NULL, `avgspeed` REAL NOT NULL, `duration` INTEGER NOT NULL, `distance` REAL NOT NULL, PRIMARY KEY(`tripStartTime`, `sequenceNr`), FOREIGN KEY(`tripStartTime`) REFERENCES `TripEntry`(`startTime`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "tripStartTime",
+            "columnName": "tripStartTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sequenceNr",
+            "columnName": "sequenceNr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "speed",
+            "columnName": "speed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "avgspeed",
+            "columnName": "avgspeed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distance",
+            "columnName": "distance",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tripStartTime",
+            "sequenceNr"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_TripCoordinate_tripStartTime_sequenceNr",
+            "unique": false,
+            "columnNames": [
+              "tripStartTime",
+              "sequenceNr"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TripCoordinate_tripStartTime_sequenceNr` ON `${TABLE_NAME}` (`tripStartTime`, `sequenceNr`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "TripEntry",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tripStartTime"
+            ],
+            "referencedColumns": [
+              "startTime"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '31ffaeacb43e34b498abae145461e0b7')"
+    ]
+  }
+}
