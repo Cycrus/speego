@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .padding(10.dp) // optional extra padding
                     ) {
-                        RouteWithWaypoints()
+                        InteractiveWaypoints()
                     }
                 }
             }
@@ -136,6 +136,42 @@ class MainActivity : ComponentActivity() {
             longitude = 16.0,
             zoom = 8.0,
             trackSegments = segments,
+            waypoints = waypoints
+        )
+    }
+
+    @Composable
+    fun InteractiveWaypoints() {
+        val trackMap = TrackMapView()
+
+        val waypoints = listOf(
+            WaypointMarker(
+                position = GeoPoint(47.0667, 15.45),
+                title = "Graz",
+                description = "Starting point",
+                icon = android.R.drawable.ic_menu_mylocation,
+                onClickCallback = {
+                    // Custom action when marker is clicked
+                    println("Clicked on Graz!")
+                    // You can update UI state, show dialogs, navigate, etc.
+                }
+            ),
+            WaypointMarker(
+                position = GeoPoint(48.2082, 16.3738),
+                title = "Vienna",
+                description = "Capital city",
+                icon = android.R.drawable.star_on,
+                onClickCallback = {
+                    println("Clicked on Vienna!")
+                    // Another custom action
+                }
+            )
+        )
+
+        trackMap.Build(
+            latitude = 47.6,
+            longitude = 16.0,
+            zoom = 8.0,
             waypoints = waypoints
         )
     }

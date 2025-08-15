@@ -6,20 +6,24 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.Marker
 
-// Data class for waypoint markers
+
 data class WaypointMarker(
     val position: GeoPoint,
     val title: String = "",
     val description: String = "",
-    val icon: Int? = null // Resource ID for custom icon
+    val icon: Int? = android.R.drawable.ic_menu_mylocation,
+    val onClickCallback: (() -> Unit)? = null // Custom click callback
 )
-// Data class for track segments with individual colors
+
+
 data class TrackSegment(
     val points: List<GeoPoint>,
     val color: Color = Color.Blue,
@@ -27,7 +31,6 @@ data class TrackSegment(
 )
 
 class TrackMapView {
-    // Store map reference for updates
     private var mapView: MapView? = null
 
     @Composable
@@ -42,18 +45,13 @@ class TrackMapView {
 
         AndroidView(
             factory = { ctx ->
-                // Ensure configuration is loaded
-                Configuration.getInstance().load(ctx, ctx.getSharedPreferences("osmdroid", 0))
-
                 MapView(ctx).apply {
                     // Store reference for later updates
                     mapView = this
 
                     // Satellite options:
                     //setTileSource(TileSourceFactory.USGS_SAT) // USGS Satellite imagery
-                    //setTileSource(TileSourceFactory.USGS_TOPO) // USGS Topographic
                     setTileSource(TileSourceFactory.MAPNIK) // Standard OpenStreetMap
-                    //setTileSource(TileSourceFactory.WIKIMEDIA) // Wikimedia maps
 
                     setMultiTouchControls(true) // Enable touch controls
                     controller.setZoom(zoom)
@@ -75,9 +73,17 @@ class TrackMapView {
                     waypoints.forEach { waypoint ->
                         val marker = Marker(this).apply {
                             position = waypoint.position
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                             title = waypoint.title
                             snippet = waypoint.description
+
+                            // Set custom click callback
+                            waypoint.onClickCallback?.let { callback ->
+                                setOnMarkerClickListener { _, _ ->
+                                    callback()
+                                    true // Return true to consume the event
+                                }
+                            }
 
                             // Set custom icon if provided
                             waypoint.icon?.let { iconRes ->
@@ -178,31 +184,5 @@ class TrackMapView {
                 map.zoomToBoundingBox(bbox, false, padding)
             }
         }
-    }
-
-    // Convenience method for single-color tracks
-    @Composable
-    fun BuildWithSingleTrack(
-        latitude: Double = 47.0667,
-        longitude: Double = 15.45,
-        zoom: Double = 12.0,
-        trackPoints: List<GeoPoint> = emptyList(),
-        trackColor: Color = Color.Blue,
-        trackWidth: Float = 8f,
-        waypoints: List<WaypointMarker> = emptyList()
-    ) {
-        val segment = if (trackPoints.isNotEmpty()) {
-            listOf(TrackSegment(trackPoints, trackColor, trackWidth))
-        } else {
-            emptyList()
-        }
-
-        Build(
-            latitude = latitude,
-            longitude = longitude,
-            zoom = zoom,
-            trackSegments = segment,
-            waypoints = waypoints
-        )
     }
 }
