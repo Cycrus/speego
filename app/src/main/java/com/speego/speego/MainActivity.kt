@@ -16,12 +16,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.speego.speego.ui.theme.SpeeGoTheme
@@ -31,7 +36,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 
 class MainActivity : ComponentActivity() {
-    private val selectView = TrackMapView()
+    private val selectView = SelectView()
     private val topBar = TopBarView()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,58 +48,17 @@ class MainActivity : ComponentActivity() {
             SpeeGoTheme {
                 Scaffold(
                     topBar = { topBar.Build() },
-                ) { innerPadding ->  // PaddingValues passed by Scaffold
+                ) { innerPadding ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .padding(10.dp) // optional extra padding
                     ) {
                         InteractiveWaypoints()
                     }
                 }
             }
         }
-    }
-
-    @Composable
-    fun SpeedBasedRoute() {
-        val segments = listOf(
-            // Slow speed - Red
-            TrackSegment(
-                points = listOf(
-                    GeoPoint(47.0667, 15.45),
-                    GeoPoint(47.07, 15.46)
-                ),
-                color = Color.Red,
-                width = 14f
-            ),
-            // Medium speed - Yellow
-            TrackSegment(
-                points = listOf(
-                    GeoPoint(47.07, 15.46),
-                    GeoPoint(47.08, 15.48)
-                ),
-                color = Color.Yellow,
-                width = 14f
-            ),
-            // Fast speed - Green
-            TrackSegment(
-                points = listOf(
-                    GeoPoint(47.08, 15.48),
-                    GeoPoint(47.10, 15.52)
-                ),
-                color = Color.Green,
-                width = 14f
-            )
-        )
-
-        selectView.Build(
-            latitude = 47.08,
-            longitude = 15.48,
-            zoom = 14.0,
-            trackSegments = segments
-        )
     }
 
     @Composable
@@ -168,6 +132,8 @@ class MainActivity : ComponentActivity() {
         )
 
         trackMap.Build(
+            modifier = Modifier
+                .height(LocalConfiguration.current.screenHeightDp.dp / 2),
             latitude = 47.6,
             longitude = 16.0,
             zoom = 8.0,
