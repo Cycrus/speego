@@ -48,6 +48,10 @@ class SelectionViewModel : ViewModel() {
         _storedTrips.postValue(emptyList())
     }
 
+    fun getTripStats() {
+
+    }
+
     fun getTripsContainer(): LiveData<List<TripEntry>> {
         return storedTrips
     }
