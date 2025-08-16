@@ -20,11 +20,9 @@ class SelectionViewModel : ViewModel() {
 
     fun getAllTrips() {
         viewModelScope.launch {
-            // Explicitly run database operation on IO thread
             val trips = withContext(Dispatchers.IO) {
                 TripDatabaseInterface.getAllTrips()
             }
-            // postValue automatically switches to main thread
             _storedTrips.postValue(trips)
         }
     }
@@ -34,7 +32,6 @@ class SelectionViewModel : ViewModel() {
             val tripName = withContext(Dispatchers.IO) {
                 TripDatabaseInterface.createNewTrip()
             }
-
             _newTripName.postValue(tripName)
         }
     }
@@ -44,12 +41,18 @@ class SelectionViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 TripDatabaseInterface.clearAllTrips()
             }
+            _storedTrips.postValue(emptyList())
         }
-        _storedTrips.postValue(emptyList())
     }
 
-    fun getTripStats() {
-
+    fun removeTrack(trackName: Long) {
+        viewModelScope.launch {
+            val trips = withContext(Dispatchers.IO) {
+                val success: Boolean = TripDatabaseInterface.deleteTrip(trackName)
+                TripDatabaseInterface.getAllTrips()
+            }
+            _storedTrips.postValue(trips)
+        }
     }
 
     fun getTripsContainer(): LiveData<List<TripEntry>> {

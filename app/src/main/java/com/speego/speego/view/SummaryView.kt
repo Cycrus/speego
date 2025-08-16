@@ -14,21 +14,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 
-class TripView {
+class SummaryView {
     private var mapView: TrackMapView = TrackMapView()
 
     @Composable
     fun Build(navController: NavController) {
         Column(Modifier
             .fillMaxSize()
-            .background(Color(54, 54, 54, 255)),
+            .background(Color(200, 54, 54, 255)),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
             mapView.Build(Modifier.fillMaxHeight(0.5f))
             Button(onClick = {
-                navController.navigate("summaryview")
+                navController.navigate("selectview")
             }) {
-                Text(text = "Stop")
+                Text(text = "Finish")
             }
         }
     }
