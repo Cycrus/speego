@@ -1,31 +1,20 @@
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.Marker
-import androidx.core.graphics.drawable.toDrawable
 import org.osmdroid.views.CustomZoomButtonsController
 
 
@@ -53,9 +42,7 @@ class TrackMapView {
         modifier: Modifier = Modifier,
         latitude: Double = 47.0667,
         longitude: Double = 15.45,
-        zoom: Double = 12.0,
-        trackSegments: List<TrackSegment> = emptyList(),
-        waypoints: List<WaypointMarker> = emptyList()
+        zoom: Double = 12.0
     ) {
         Box(modifier = modifier) {
             Box(
@@ -63,7 +50,7 @@ class TrackMapView {
                     .fillMaxSize()
                     .clip(RoundedCornerShape(0.dp))
             ) {
-                CreateMap(latitude, longitude, zoom, trackSegments, waypoints)
+                CreateMap(latitude, longitude, zoom)
             }
         }
     }
@@ -72,70 +59,19 @@ class TrackMapView {
     fun CreateMap(
         latitude: Double = 47.0667,
         longitude: Double = 15.45,
-        zoom: Double = 12.0,
-        trackSegments: List<TrackSegment> = emptyList(),
-        waypoints: List<WaypointMarker> = emptyList()
+        zoom: Double = 12.0
     ) {
-        val context = LocalContext.current
-
         AndroidView(
             factory = { ctx ->
                 MapView(ctx).apply {
                     // Store reference for later updates
                     mapView = this
 
-                    // Satellite options:
-                    //setTileSource(TileSourceFactory.USGS_SAT) // USGS Satellite imagery
-                    setTileSource(TileSourceFactory.MAPNIK) // Standard OpenStreetMap
-
-                    setMultiTouchControls(true) // Enable touch controls
+                    setTileSource(TileSourceFactory.MAPNIK)
+                    setMultiTouchControls(true)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     controller.setZoom(zoom)
                     controller.setCenter(GeoPoint(latitude, longitude))
-
-                    // Add all track segments
-                    trackSegments.forEach { segment ->
-                        if (segment.points.isNotEmpty()) {
-                            val polyline = Polyline().apply {
-                                setPoints(segment.points)
-                                color = segment.color.toArgb()
-                                width = segment.width
-                            }
-                            overlays.add(polyline)
-                        }
-                    }
-
-                    // Add waypoint markers
-                    waypoints.forEach { waypoint ->
-                        val marker = Marker(this).apply {
-                            position = waypoint.position
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                            title = waypoint.title
-                            snippet = waypoint.description
-
-                            // Set custom click callback
-                            waypoint.onClickCallback?.let { callback ->
-                                setOnMarkerClickListener { _, _ ->
-                                    callback()
-                                    true // Return true to consume the event
-                                }
-                            }
-
-                            if (waypoint.icon == null) {
-                                // Invisible dummy icon shape.
-                                val tinyCircle = GradientDrawable().apply {
-                                    shape = GradientDrawable.OVAL
-                                    setColor(android.graphics.Color.argb(0, 0, 0, 0))
-                                    setSize(80, 80)
-                                }
-                                icon = tinyCircle
-                            }
-                            else {
-                                icon = ctx.getDrawable(waypoint.icon)
-                            }
-                        }
-                        overlays.add(marker)
-                    }
 
                     // Force invalidate to refresh
                     invalidate()

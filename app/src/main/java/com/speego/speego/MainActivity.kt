@@ -16,19 +16,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.speego.speego.database.TripDatabaseInterface
+import com.speego.speego.database.TripEntry
 import com.speego.speego.ui.theme.SpeeGoTheme
 import com.speego.speego.view.SelectView
 import com.speego.speego.view.TopBarView
@@ -43,6 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         Configuration.getInstance().load(this, getSharedPreferences("osmdroid", 0))
+        TripDatabaseInterface.init(this)
 
         setContent {
             SpeeGoTheme {
@@ -54,7 +52,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        InteractiveWaypoints()
+                        selectView.Build()
                     }
                 }
             }
@@ -98,9 +96,7 @@ class MainActivity : ComponentActivity() {
         trackMap.Build(
             latitude = 47.6,
             longitude = 16.0,
-            zoom = 8.0,
-            trackSegments = segments,
-            waypoints = waypoints
+            zoom = 8.0
         )
     }
 
@@ -136,8 +132,7 @@ class MainActivity : ComponentActivity() {
                 .height(LocalConfiguration.current.screenHeightDp.dp / 2),
             latitude = 47.6,
             longitude = 16.0,
-            zoom = 8.0,
-            waypoints = waypoints
+            zoom = 8.0
         )
     }
 }

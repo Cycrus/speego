@@ -2,41 +2,61 @@ package com.speego.speego.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.speego.speego.database.TripEntry
+import com.speego.speego.viewmodel.SelectionViewModel
 
 class SelectView {
-    private val tripButtons = Array<TripButtonView>(11) { index ->
-        TripButtonView(index == 0)
-    }
+    private var selectionViewModel: SelectionViewModel = SelectionViewModel()
+    private val tripButtons: MutableList<TripButtonView> = mutableListOf()
 
     @Composable
     fun Build() {
+        val tripsData by selectionViewModel.getTripsContainer().observeAsState()
+        val newTripName by selectionViewModel.getNewTripNameContainer().observeAsState()
+
+        // TODO: JUST FOR DEBUGGING
+        LaunchedEffect(Unit) {
+            selectionViewModel.createNewTrip()
+        }
+        selectionViewModel.getAllTrips()
+
         Column(Modifier
                 .fillMaxSize()
                 .background(Color(54, 54, 54, 255))
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
-            for(i in 0..10) {
-                tripButtons[i].Build()
-            }
+            CreateTripButtons(tripsData)
+        }
+    }
+
+    @Composable
+    fun CreateTripButtons(trips: List<TripEntry>?) {
+        if (trips == null)
+            return
+        val numButtons = trips.size
+
+        tripButtons.clear()
+        for (i in 0..numButtons) {
+            if (i == 0)
+                tripButtons.add(TripButtonView(newTrip = true))
+            else
+                tripButtons.add(TripButtonView(newTrip = false, startTime = trips[i - 1].startTime))
+        }
+
+        for(button in tripButtons) {
+            button.Build()
         }
     }
 }

@@ -43,6 +43,9 @@ interface TripEntryDao {
     @Delete
     fun delete(tripEntry: TripEntry): Int
 
+    @Query("DELETE FROM TripEntry")
+    fun clear(): Int
+
     // Updating
     @Query("UPDATE TripEntry SET finished = :finished WHERE startTime = :startTime")
     fun setFinished(startTime: Long, finished: Boolean)

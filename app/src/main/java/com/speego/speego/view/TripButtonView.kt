@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class TripButtonView(val newTrip: Boolean = false) {
+class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0) {
     @Composable
     fun Build() {
         Box(Modifier
@@ -27,7 +27,7 @@ class TripButtonView(val newTrip: Boolean = false) {
                 Text(text = "+", fontSize = 100.sp)
             }
             else {
-                Text(text = "-----", fontSize = 80.sp)
+                Text(text = startTime.toString(), fontSize = 20.sp)
             }
         }
     }

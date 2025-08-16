@@ -21,14 +21,14 @@ object TripDatabaseInterface {
 
     /*********************************/
     /******** Trip Operations ********/
-    fun createNewTrip(): Long {
+    suspend fun createNewTrip(): Long {
         val currTime: Long = System.currentTimeMillis()
         val newTrip: TripEntry = TripEntry(startTime = currTime, finished = false)
         tripEntryDao.createNew(newTrip)
         return currTime
     }
 
-    fun deleteTrip(tripStartTime: Long): Boolean {
+    suspend fun deleteTrip(tripStartTime: Long): Boolean {
         val deleteTrip: TripEntry? = tripEntryDao.getByStartTime(tripStartTime)
         if (deleteTrip == null)
         {
@@ -38,17 +38,21 @@ object TripDatabaseInterface {
         return deletedEntries > 0
     }
 
-    fun getLastTrip(): TripEntry? {
+    suspend fun clearAllTrips(): Int {
+        return tripEntryDao.clear()
+    }
+
+    suspend fun getLastTrip(): TripEntry? {
         return tripEntryDao.getLast()
     }
 
-    fun getAllTrips(): List<TripEntry> {
+    suspend fun getAllTrips(): List<TripEntry> {
         return tripEntryDao.getAll()
     }
 
     /***************************************/
     /******** Coordinate Operations ********/
-    fun createNewCoordinate(tripStartTime: Long,
+    suspend fun createNewCoordinate(tripStartTime: Long,
                             latitude: Double, longitude: Double) {
         val prevCoordinate: TripCoordinate? = coordinateDao.getLastOfTrip(tripStartTime)
         var newSpeed: Float = 0f // TODO: Compute real speed
@@ -76,11 +80,11 @@ object TripDatabaseInterface {
         coordinateDao.addNewCoordinate(newCoordinate)
     }
 
-    fun getCoordinateList(tripStartTime: Long): List<TripCoordinate> {
+    suspend fun getCoordinateList(tripStartTime: Long): List<TripCoordinate> {
         return coordinateDao.getAllOfTrip(tripStartTime)
     }
 
-    fun getLastCoordinateOfTrip(tripStartTime: Long): TripCoordinate? {
+    suspend fun getLastCoordinateOfTrip(tripStartTime: Long): TripCoordinate? {
         return coordinateDao.getLastOfTrip(tripStartTime)
     }
 }

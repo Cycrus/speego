@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.runtime.livedata)
     // Room (SQLite)
     val room_version = "2.7.2"
     implementation("androidx.room:room-runtime:$room_version")
