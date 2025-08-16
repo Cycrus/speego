@@ -12,13 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.speego.speego.gnss_service.GnssService
 
 class TripView {
     private var mapView: TrackMapView = TrackMapView()
 
     @Composable
     fun Build(navController: NavController) {
+        val context = LocalContext.current
+        GnssService.startForegroundService(context)
         Column(Modifier
             .fillMaxSize()
             .background(Color(54, 54, 54, 255)),
@@ -26,6 +30,7 @@ class TripView {
             horizontalAlignment = Alignment.CenterHorizontally) {
             mapView.Build(Modifier.fillMaxHeight(0.5f))
             Button(onClick = {
+                GnssService.stopForegroundService(context)
                 navController.navigate("summaryview")
             }) {
                 Text(text = "Stop")
