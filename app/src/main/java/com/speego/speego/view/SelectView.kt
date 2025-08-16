@@ -13,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import com.speego.speego.database.TripEntry
 import com.speego.speego.viewmodel.SelectionViewModel
 
@@ -21,14 +22,14 @@ class SelectView {
     private val tripButtons: MutableList<TripButtonView> = mutableListOf()
 
     @Composable
-    fun Build() {
+    fun Build(navController: NavController) {
         val tripsData by selectionViewModel.getTripsContainer().observeAsState()
         val newTripName by selectionViewModel.getNewTripNameContainer().observeAsState()
 
         // TODO: JUST FOR DEBUGGING
-        LaunchedEffect(Unit) {
+        /*LaunchedEffect(Unit) {
             selectionViewModel.createNewTrip()
-        }
+        }*/
         selectionViewModel.getAllTrips()
 
         Column(Modifier
@@ -37,12 +38,12 @@ class SelectView {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
-            CreateTripButtons(tripsData)
+            CreateTripButtons(tripsData, navController)
         }
     }
 
     @Composable
-    fun CreateTripButtons(trips: List<TripEntry>?) {
+    fun CreateTripButtons(trips: List<TripEntry>?, navController: NavController) {
         if (trips == null)
             return
         val numButtons = trips.size
@@ -50,9 +51,13 @@ class SelectView {
         tripButtons.clear()
         for (i in 0..numButtons) {
             if (i == 0)
-                tripButtons.add(TripButtonView(newTrip = true))
+                tripButtons.add(TripButtonView(newTrip = true, onClick = {
+                    navController.navigate("tripview")
+                }))
             else
-                tripButtons.add(TripButtonView(newTrip = false, startTime = trips[i - 1].startTime))
+                tripButtons.add(TripButtonView(newTrip = false, startTime = trips[i - 1].startTime, onClick = {
+                    navController.navigate("tripview")
+                }))
         }
 
         for(button in tripButtons) {

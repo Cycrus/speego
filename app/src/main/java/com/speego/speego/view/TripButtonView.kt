@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.speego.speego.viewmodel.TripButtonViewModel
 
-class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0) {
+class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val onClick: () -> Unit) {
     private var buttonViewModel: TripButtonViewModel = TripButtonViewModel(startTime)
     @Composable
     fun Build() {
@@ -30,14 +31,17 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0) {
                 .background(Color(148, 148, 148, 255)),
             contentAlignment = Alignment.Center
         ) {
-            if (newTrip) {
-                Text(text = "+", fontSize = 100.sp)
-            }
-            else {
-                Text(text = tripStats?.startTime.toString() + "\n" +
-                            tripStats?.duration.toString() + " ms\n" +
-                            tripStats?.distance.toString() + " km\n" +
-                            tripStats?.avgSpeed.toString() + " kmh\n", fontSize = 20.sp)
+            Button(onClick = onClick) {
+                if (newTrip) {
+                    Text(text = "+", fontSize = 100.sp)
+                } else {
+                    Text(
+                        text = tripStats?.startTime.toString() + "\n" +
+                                tripStats?.duration.toString() + " ms\n" +
+                                tripStats?.distance.toString() + " km\n" +
+                                tripStats?.avgSpeed.toString() + " kmh\n", fontSize = 20.sp
+                    )
+                }
             }
         }
     }

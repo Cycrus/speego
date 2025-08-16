@@ -24,16 +24,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.speego.speego.database.TripDatabaseInterface
 import com.speego.speego.database.TripEntry
 import com.speego.speego.ui.theme.SpeeGoTheme
 import com.speego.speego.view.SelectView
 import com.speego.speego.view.TopBarView
+import com.speego.speego.view.TripView
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 
 class MainActivity : ComponentActivity() {
     private val selectView = SelectView()
+    private val tripView = TripView()
     private val topBar = TopBarView()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +52,30 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = { topBar.Build() },
                 ) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "selectview"
                     ) {
-                        selectView.Build()
+                        composable("selectview") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                            ) {
+                                selectView.Build(navController)
+                            }
+                        }
+                        composable("tripview") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                            ) {
+                                tripView.Build(navController)
+                            }
+                        }
                     }
                 }
             }
