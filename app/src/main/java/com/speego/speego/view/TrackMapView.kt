@@ -26,6 +26,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.Marker
 import androidx.core.graphics.drawable.toDrawable
+import org.osmdroid.views.CustomZoomButtonsController
 
 
 data class WaypointMarker(
@@ -88,6 +89,7 @@ class TrackMapView {
                     setTileSource(TileSourceFactory.MAPNIK) // Standard OpenStreetMap
 
                     setMultiTouchControls(true) // Enable touch controls
+                    zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     controller.setZoom(zoom)
                     controller.setCenter(GeoPoint(latitude, longitude))
 
