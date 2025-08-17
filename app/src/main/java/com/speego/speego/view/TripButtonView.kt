@@ -1,6 +1,7 @@
 package com.speego.speego.view
 
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,11 +43,16 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val 
                         val dateString: String =
                             DateFormat.format("yyyy-MM-dd HH:mm:ss", tripStats!!.startTime)
                                 .toString()
+                        val totalDurationMinutes = tripStats!!.duration / (1000 * 60)
+                        val durationHours = totalDurationMinutes / 60
+                        val durationMinutes = totalDurationMinutes % 60
+                        val totalDurationSeconds = tripStats!!.duration / 1000
+                        val durationSeconds = totalDurationSeconds - totalDurationMinutes * 60
                         Text(
                             text = dateString + "\n" +
-                                    tripStats?.duration.toString() + " ms\n" +
-                                    tripStats?.distance.toString() + " km\n" +
-                                    tripStats?.avgSpeed.toString() + " kmh\n", fontSize = 20.sp
+                                    durationHours + ":" + durationMinutes + "." + durationSeconds + " h\n" +
+                                    "%.2f".format(tripStats!!.distance) + " km\n" +
+                                    "%.2f".format(tripStats!!.avgSpeed) + " km/h\n", fontSize = 20.sp
                         )
                     }
                 }

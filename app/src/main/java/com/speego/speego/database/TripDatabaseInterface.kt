@@ -1,6 +1,7 @@
 package com.speego.speego.database
 
 import android.content.Context
+import android.location.Location
 import androidx.room.Room
 import kotlin.Long
 
@@ -55,18 +56,28 @@ object TripDatabaseInterface {
     suspend fun createNewCoordinate(tripStartTime: Long,
                             latitude: Double, longitude: Double) {
         val prevCoordinate: TripCoordinate? = coordinateDao.getLastOfTrip(tripStartTime)
-        var newSpeed: Float = 0f // TODO: Compute real speed
-        var newDistance: Float = 0.1f // TODO: Compute real distance
-        var newDuration: Long = System.currentTimeMillis() - tripStartTime
+        val currTime: Long = System.currentTimeMillis()
+        val newDuration: Long = currTime - tripStartTime
+        var newSpeed: Float = 0f
+        var newDistance: Float = 0.0f
         var currSequenceNr: Int = 0
         var newAvgSpeed: Float = newSpeed
 
         // Continuous average formulas:
         //      https://stackoverflow.com/questions/22999487/update-the-average-of-a-continuous-sequence-of-numbers-in-constant-time
         if (prevCoordinate != null) {
+            val timeDelta: Long = newDuration - prevCoordinate.duration
             currSequenceNr = prevCoordinate.sequenceNr + 1
+            val distanceResults = FloatArray(3)
+            Location.distanceBetween(
+                prevCoordinate.latitude, prevCoordinate.longitude,  // lat1, lon1
+                latitude, longitude,  // lat2, lon2
+                distanceResults
+            )
+            val newDistanceKm = distanceResults[0] / 1000.0f
+            newDistance = prevCoordinate.distance + newDistanceKm
+            newSpeed = newDistanceKm / (timeDelta / 3600000.0f) // 3600000 = factor from ms to h
             newAvgSpeed = prevCoordinate.avgspeed + ((newSpeed - prevCoordinate.avgspeed) / currSequenceNr)
-            newDistance = prevCoordinate.distance + newDistance
         }
 
         val newCoordinate: TripCoordinate = TripCoordinate(
