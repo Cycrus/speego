@@ -15,9 +15,6 @@ class SelectionViewModel : ViewModel() {
     private val _storedTrips = MutableLiveData<List<TripEntry>>()
     val storedTrips: LiveData<List<TripEntry>> = _storedTrips
 
-    val _newTripName = MutableLiveData<Long>()
-    val newTripName: LiveData<Long> = _newTripName
-
     fun getAllTrips() {
         viewModelScope.launch {
             val trips = withContext(Dispatchers.IO) {
@@ -32,7 +29,6 @@ class SelectionViewModel : ViewModel() {
             val tripName = withContext(Dispatchers.IO) {
                 TripDatabaseInterface.createNewTrip(tripName)
             }
-            _newTripName.postValue(tripName)
         }
     }
 
@@ -57,9 +53,5 @@ class SelectionViewModel : ViewModel() {
 
     fun getTripsContainer(): LiveData<List<TripEntry>> {
         return storedTrips
-    }
-
-    fun getNewTripNameContainer(): LiveData<Long> {
-        return newTripName
     }
 }

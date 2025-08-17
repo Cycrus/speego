@@ -50,9 +50,10 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val 
                         val durationSeconds = totalDurationSeconds - totalDurationMinutes * 60
                         Text(
                             text = dateString + "\n" +
-                                    durationHours + ":" + durationMinutes + "." + durationSeconds + " h\n" +
-                                    "%.2f".format(tripStats!!.distance) + " km\n" +
-                                    "%.2f".format(tripStats!!.avgSpeed) + " km/h\n", fontSize = 20.sp
+                                    "%02d:%02d.%02d h\n".format(durationHours, durationMinutes, durationSeconds) +
+                                    "%.2f km\n".format(tripStats!!.distance) +
+                                    "%.2f km/h\n".format(tripStats!!.avgSpeed),
+                            fontSize = 20.sp
                         )
                     }
                 }

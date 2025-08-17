@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.speego.speego.database.TripDatabaseInterface
+import com.speego.speego.gnss_service.GnssService
 import com.speego.speego.ui.theme.SpeeGoTheme
 import com.speego.speego.view.SelectView
 import com.speego.speego.view.SummaryView

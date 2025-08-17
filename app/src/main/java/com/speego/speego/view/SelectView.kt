@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -26,12 +24,7 @@ class SelectView {
     @Composable
     fun Build(navController: NavController) {
         val tripsData by selectionViewModel.getTripsContainer().observeAsState()
-        val newTripName by selectionViewModel.getNewTripNameContainer().observeAsState()
 
-        // TODO: JUST FOR DEBUGGING
-        /*LaunchedEffect(Unit) {
-            selectionViewModel.createNewTrip()
-        }*/
         selectionViewModel.getAllTrips()
 
         Column(Modifier

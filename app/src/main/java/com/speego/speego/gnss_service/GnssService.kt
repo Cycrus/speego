@@ -17,6 +17,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -24,8 +26,10 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.speego.speego.MainActivity
+import com.speego.speego.database.TripCoordinate
 import com.speego.speego.database.TripDatabaseInterface
 import com.speego.speego.model.GlobalModel
+import com.speego.speego.viewmodel.TripViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,6 +63,7 @@ class GnssService : Service() {
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val locationScope = CoroutineScope(
         Dispatchers.IO.limitedParallelism(1) + SupervisorJob()
@@ -83,18 +88,21 @@ class GnssService : Service() {
             .setMinUpdateDistanceMeters(0f)
             .build()
 
+        val coordinateLiveData: MutableLiveData<TripCoordinate> = GlobalModel.getMutableCoordinateContainer()
+
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationScope.launch {
                     for (location in locationResult.locations) {
                         Log.d("FastGPS", "Lat: ${location.latitude}, Lon: ${location.longitude}")
                         Log.d("FastGPS", "Provider: ${location.provider}, Accuracy: ${location.accuracy}m")
-                        TripDatabaseInterface.createNewCoordinate(
+                        val newCoordinate: TripCoordinate = TripDatabaseInterface.createNewCoordinate(
                             tripStartTime = GlobalModel.getCurrentTripName(),
                             latitude = location.latitude,
                             longitude = location.longitude,
                             coordinateTime = location.time
                         )
+                        coordinateLiveData.postValue(newCoordinate)
                     }
                 }
             }
@@ -143,7 +151,7 @@ class GnssService : Service() {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "GPS",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
             serviceChannel.setSound(null, null)
             val manager = getSystemService(NotificationManager::class.java)
