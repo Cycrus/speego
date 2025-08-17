@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.speego.speego.database.TripEntry
+import com.speego.speego.model.GlobalModel
 import com.speego.speego.viewmodel.SelectionViewModel
 
 class SelectView {
@@ -54,7 +55,9 @@ class SelectView {
             if (i == 0)
                 tripButtons.add(TripButtonView(newTrip = true,
                     onClick = {
-                        selectionViewModel.createNewTrip()
+                        val newTripName: Long = System.currentTimeMillis()
+                        GlobalModel.setCurrentTripName(newTripName)
+                        selectionViewModel.createNewTrip(newTripName)
                         navController.navigate("tripview")
                     }))
             else

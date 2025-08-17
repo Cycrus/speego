@@ -21,8 +21,8 @@ object TripDatabaseInterface {
 
     /*********************************/
     /******** Trip Operations ********/
-    suspend fun createNewTrip(): Long {
-        val currTime: Long = System.currentTimeMillis()
+    suspend fun createNewTrip(tripName: Long = 0): Long {
+        val currTime: Long = if(tripName == 0L) System.currentTimeMillis() else tripName
         val newTrip: TripEntry = TripEntry(startTime = currTime, finished = false)
         tripEntryDao.createNew(newTrip)
         return currTime
@@ -61,6 +61,8 @@ object TripDatabaseInterface {
         var currSequenceNr: Int = 0
         var newAvgSpeed: Float = newSpeed
 
+        // Continuous average formulas:
+        //      https://stackoverflow.com/questions/22999487/update-the-average-of-a-continuous-sequence-of-numbers-in-constant-time
         if (prevCoordinate != null) {
             currSequenceNr = prevCoordinate.sequenceNr + 1
             newAvgSpeed = prevCoordinate.avgspeed + ((newSpeed - prevCoordinate.avgspeed) / currSequenceNr)

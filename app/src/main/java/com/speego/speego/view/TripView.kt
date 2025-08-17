@@ -1,6 +1,7 @@
 package com.speego.speego.view
 
 import TrackMapView
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.speego.speego.gnss_service.GnssService
+import com.speego.speego.model.GlobalModel
 
 class TripView {
     private var mapView: TrackMapView = TrackMapView()
@@ -23,6 +25,7 @@ class TripView {
     fun Build(navController: NavController) {
         val context = LocalContext.current
         GnssService.startForegroundService(context)
+        Log.d("TripView", "Current trip name = " + GlobalModel.getCurrentTripName())
         Column(Modifier
             .fillMaxSize()
             .background(Color(54, 54, 54, 255)),

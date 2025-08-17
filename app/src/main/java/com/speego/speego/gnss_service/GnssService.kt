@@ -17,6 +17,13 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.speego.speego.MainActivity
+import com.speego.speego.database.TripDatabaseInterface
+import com.speego.speego.model.GlobalModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class GnssService : Service() {
     companion object {
@@ -43,6 +50,10 @@ class GnssService : Service() {
 
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val locationScope = CoroutineScope(
+        Dispatchers.IO.limitedParallelism(1) + SupervisorJob()
+    )
 
     override fun onCreate() {
         super.onCreate()
@@ -60,8 +71,14 @@ class GnssService : Service() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         locationListener = LocationListener { location ->
-            Log.d("GPS", "Lat: ${location.latitude}, Lon: ${location.longitude}")
-            // Use your GPS data here
+            locationScope.launch {
+                Log.d("GPS", "Lat: ${location.latitude}, Lon: ${location.longitude}")
+                TripDatabaseInterface.createNewCoordinate(
+                    tripStartTime = GlobalModel.getCurrentTripName(),
+                    latitude = location.latitude,
+                    longitude = location.longitude
+                )
+            }
         }
     }
 

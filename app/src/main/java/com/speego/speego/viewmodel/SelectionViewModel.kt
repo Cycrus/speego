@@ -27,10 +27,10 @@ class SelectionViewModel : ViewModel() {
         }
     }
 
-    fun createNewTrip() {
+    fun createNewTrip(tripName: Long = 0) {
         viewModelScope.launch {
             val tripName = withContext(Dispatchers.IO) {
-                TripDatabaseInterface.createNewTrip()
+                TripDatabaseInterface.createNewTrip(tripName)
             }
             _newTripName.postValue(tripName)
         }
