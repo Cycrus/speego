@@ -56,6 +56,7 @@ class SelectView {
             else
                 tripButtons.add(TripButtonView(newTrip = false, startTime = trips[i - 1].startTime,
                     onClick = {
+                        GlobalModel.setCurrentTripName(trips[i - 1].startTime)
                         navController.navigate("summaryview")
                     },
                     removeCallback = {
@@ -64,7 +65,7 @@ class SelectView {
         }
 
         for(button in tripButtons) {
-            button.Build()
+            button.BuildComposable()
         }
     }
 

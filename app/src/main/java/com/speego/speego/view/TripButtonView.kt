@@ -1,5 +1,9 @@
 package com.speego.speego.view
 
+import android.content.Context
+import android.location.Address
+import android.location.Geocoder
+import android.os.Build
 import android.text.format.DateFormat
 import android.util.Log
 import androidx.compose.foundation.background
@@ -16,15 +20,18 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.speego.speego.viewmodel.TripButtonViewModel
+import java.util.Locale
+import java.util.concurrent.Executors
 
 class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val onClick: () -> Unit,
                      val removeCallback: (() -> Unit)? = null) {
     private var buttonViewModel: TripButtonViewModel = TripButtonViewModel(startTime)
     @Composable
-    fun Build() {
+    fun BuildComposable() {
         val tripStats by buttonViewModel.getTripStatsContainer().observeAsState()
         buttonViewModel.fetchTripStats()
 
@@ -52,7 +59,10 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val 
                             text = dateString + "\n" +
                                     "%02d:%02d.%02d h\n".format(durationHours, durationMinutes, durationSeconds) +
                                     "%.2f km\n".format(tripStats!!.distance) +
-                                    "%.2f km/h\n".format(tripStats!!.avgSpeed),
+                                    "%.2f km/h\n".format(tripStats!!.avgSpeed) +
+                                    getAddressFromLocation(LocalContext.current,
+                                        tripStats!!.latitude,
+                                        tripStats!!.longitude),
                             fontSize = 20.sp
                         )
                     }
@@ -67,6 +77,22 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val 
                     Text("-", fontSize = 30.sp)
                 }
             }
+        }
+    }
+
+    fun getAddressFromLocation(
+        context: Context,
+        latitude: Double,
+        longitude: Double,
+        maxResults: Int = 1
+    ): String {
+        val geocoder = Geocoder(context, Locale.getDefault())
+
+        val addresses = geocoder.getFromLocation(latitude, longitude, maxResults)
+        if (addresses.isNullOrEmpty()) {
+            return "---"
+        } else {
+            return addresses[0].locality
         }
     }
 }

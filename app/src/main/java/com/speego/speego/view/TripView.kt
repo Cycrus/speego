@@ -5,12 +5,14 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -19,6 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -44,6 +47,15 @@ class TripView {
         val coordinateData by tripViewModel.getCoordinateContainer().observeAsState()
         val context = LocalContext.current
 
+        LaunchedEffect(coordinateData) {
+            coordinateData?.let { coordinate ->
+                mapView.setNewCoordinate(coordinate)
+                mapView.updatePositionMarker()
+                mapView.updateTrack()
+                mapView.renderMap()
+            }
+        }
+
         GnssService.startForegroundService(context)
         Log.d("TripView", "Current trip name = " + GlobalModel.getCurrentTripName())
         Column(Modifier
@@ -54,19 +66,25 @@ class TripView {
 
             BuildMapView(navController, context, coordinateData)
             BuildDataView(coordinateData)
-
         }
     }
 
     @Composable
     fun BuildMapView(navController: NavController, context: Context, coordinateData: TripCoordinate?) {
-        Row(Modifier.fillMaxHeight(0.6f)) {
-            mapView.Build()
-            Button(onClick = {
-                GnssService.stopForegroundService(context)
-                navController.navigate("summaryview")
-            }) {
-                Text(text = "Stop")
+        Column(Modifier.fillMaxHeight(0.6f)) {
+            Box(Modifier.fillMaxSize()) {
+                mapView.Build(Modifier.fillMaxHeight(0.95f)) // Map takes most space
+                Button(
+                    onClick = {
+                        GnssService.stopForegroundService(context)
+                        mapView.clearAllOverlays()
+                        navController.navigate("summaryview")
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                ) {
+                    Text(text = "Stop")
+                }
             }
         }
     }

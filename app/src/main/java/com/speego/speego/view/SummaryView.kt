@@ -1,34 +1,172 @@
 package com.speego.speego.view
 
 import TrackMapView
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.speego.speego.database.TripCoordinate
+import com.speego.speego.model.GlobalModel
+import com.speego.speego.viewmodel.SummaryViewModel
 
 class SummaryView {
+    private var summaryViewModel = SummaryViewModel()
     private var mapView: TrackMapView = TrackMapView()
+
 
     @Composable
     fun Build(navController: NavController) {
+        val coordinateData by summaryViewModel.getCoordListContainer().observeAsState()
+        val context = LocalContext.current
+
+        LaunchedEffect(coordinateData) {
+            if (coordinateData != null) {
+                mapView.drawFullTrack(coordinateData!!)
+                mapView.renderMap()
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            summaryViewModel.postCoordinateList(GlobalModel.getCurrentTripName())
+        }
+
+        Log.d("SummaryView", "Current trip name = " + GlobalModel.getCurrentTripName())
         Column(Modifier
             .fillMaxSize()
-            .background(Color(200, 54, 54, 255)),
+            .background(Color(120, 54, 54, 255)),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
-            mapView.Build(Modifier.fillMaxHeight(0.5f))
-            Button(onClick = {
-                navController.navigate("selectview")
-            }) {
-                Text(text = "Finish")
+
+            BuildMapView(navController, context, coordinateData)
+            BuildDataView(coordinateData)
+        }
+    }
+
+    @Composable
+    fun BuildMapView(navController: NavController, context: Context, coordinateData: List<TripCoordinate>?) {
+        Column(Modifier.fillMaxHeight(0.6f)) {
+            Box(Modifier.fillMaxSize()) {
+                mapView.Build(Modifier.fillMaxHeight(0.95f)) // Map takes most space
+                Button(
+                    onClick = {
+                        GlobalModel.setCurrentTripName(0)
+                        summaryViewModel.clearCoordinateList()
+                        mapView.clearAllOverlays()
+                        navController.navigate("selectview")
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                ) {
+                    Text(text = "Finish")
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun BuildDataView(coordinateData: List<TripCoordinate>?) {
+        if (coordinateData == null || coordinateData.isEmpty()) {
+            Text("Waiting for database fetch...")
+            return
+        }
+
+        // Stretch over full available space
+        Column(Modifier.fillMaxSize()) {
+            // First row - takes up half the height
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                // Top-left cell
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(coordinateData.last().latitude.toString() + ":\n" + coordinateData.last().longitude.toString())
+                }
+
+                // Vertical separator line
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(1.dp),
+                    thickness = DividerDefaults.Thickness, color = Color.Gray
+                )
+
+                // Top-right cell
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(coordinateData.last().distance.toString() + " km")
+                }
+            }
+
+            // Horizontal separator line
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp),
+                thickness = DividerDefaults.Thickness, color = Color.Gray
+            )
+
+            // Second row - takes up the other half of the height
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                // Bottom-left cell
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(coordinateData.last().duration.toString() + " ms")
+                }
+
+                // Vertical separator line
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(1.dp),
+                    thickness = DividerDefaults.Thickness, color = Color.Gray
+                )
+
+                // Bottom-right cell
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(coordinateData.last().avgspeed.toString() + " km/h")
+                }
             }
         }
     }
