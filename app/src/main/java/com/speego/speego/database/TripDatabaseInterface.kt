@@ -54,9 +54,10 @@ object TripDatabaseInterface {
     /***************************************/
     /******** Coordinate Operations ********/
     suspend fun createNewCoordinate(tripStartTime: Long,
-                            latitude: Double, longitude: Double) {
+                                    latitude: Double, longitude: Double,
+                                    coordinateTime: Long = 0) {
         val prevCoordinate: TripCoordinate? = coordinateDao.getLastOfTrip(tripStartTime)
-        val currTime: Long = System.currentTimeMillis()
+        val currTime: Long = if(coordinateTime == 0L) System.currentTimeMillis() else coordinateTime
         val newDuration: Long = currTime - tripStartTime
         var newSpeed: Float = 0f
         var newDistance: Float = 0.0f
