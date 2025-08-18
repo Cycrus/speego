@@ -3,6 +3,7 @@ package com.speego.speego.view
 import TrackMapView
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,8 @@ class TripView {
     fun Build(navController: NavController) {
         val coordinateData by tripViewModel.getCoordinateContainer().observeAsState()
         val context = LocalContext.current
+
+        BackHandler { }
 
         LaunchedEffect(coordinateData) {
             coordinateData?.let { coordinate ->
@@ -110,7 +113,8 @@ class TripView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.latitude.toString() + ":\n" + coordinateData.longitude.toString())
+                    Text("Run distance:")
+                    Text("%.2f".format(coordinateData.distance) + " km")
                 }
 
                 // Vertical separator line
@@ -127,7 +131,13 @@ class TripView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.distance.toString() + " km")
+                    val totalDurationMinutes = coordinateData.duration / (1000 * 60)
+                    val durationHours = totalDurationMinutes / 60
+                    val durationMinutes = totalDurationMinutes % 60
+                    val totalDurationSeconds = coordinateData.duration / 1000
+                    val durationSeconds = totalDurationSeconds - totalDurationMinutes * 60
+                    Text("Run duration:")
+                    Text("%02d:%02d.%02d h\n".format(durationHours, durationMinutes, durationSeconds))
                 }
             }
 
@@ -151,7 +161,8 @@ class TripView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.duration.toString() + " ms")
+                    Text("Current speed:")
+                    Text("%.2f km/h".format(coordinateData.speed))
                 }
 
                 // Vertical separator line
@@ -168,7 +179,8 @@ class TripView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.avgspeed.toString() + " km/h")
+                    Text("Average speed:")
+                    Text("%.2f km/h".format(coordinateData.speed))
                 }
             }
         }

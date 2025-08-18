@@ -3,6 +3,7 @@ package com.speego.speego.view
 import TrackMapView
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,13 @@ class SummaryView {
     fun Build(navController: NavController) {
         val coordinateData by summaryViewModel.getCoordListContainer().observeAsState()
         val context = LocalContext.current
+
+        BackHandler {
+            GlobalModel.setCurrentTripName(0)
+            summaryViewModel.clearCoordinateList()
+            mapView.clearAllOverlays()
+            navController.navigate("selectview")
+        }
 
         LaunchedEffect(coordinateData) {
             if (coordinateData != null) {
@@ -107,7 +115,8 @@ class SummaryView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.last().latitude.toString() + ":\n" + coordinateData.last().longitude.toString())
+                    Text("Run distance:")
+                    Text("%.2f".format(coordinateData.last().distance) + " km")
                 }
 
                 // Vertical separator line
@@ -124,7 +133,13 @@ class SummaryView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.last().distance.toString() + " km")
+                    val totalDurationMinutes = coordinateData.last().duration / (1000 * 60)
+                    val durationHours = totalDurationMinutes / 60
+                    val durationMinutes = totalDurationMinutes % 60
+                    val totalDurationSeconds = coordinateData.last().duration / 1000
+                    val durationSeconds = totalDurationSeconds - totalDurationMinutes * 60
+                    Text("Run duration:")
+                    Text("%02d:%02d.%02d h\n".format(durationHours, durationMinutes, durationSeconds))
                 }
             }
 
@@ -148,7 +163,8 @@ class SummaryView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.last().duration.toString() + " ms")
+                    Text("Current speed:")
+                    Text("%.2f km/h".format(coordinateData.last().speed))
                 }
 
                 // Vertical separator line
@@ -165,7 +181,8 @@ class SummaryView {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(coordinateData.last().avgspeed.toString() + " km/h")
+                    Text("Average speed:")
+                    Text("%.2f km/h".format(coordinateData.last().speed))
                 }
             }
         }

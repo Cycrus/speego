@@ -1,5 +1,7 @@
 package com.speego.speego.view
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.speego.speego.database.TripEntry
 import com.speego.speego.model.GlobalModel
@@ -24,6 +27,11 @@ class SelectView {
     @Composable
     fun Build(navController: NavController) {
         val tripsData by selectionViewModel.getTripsContainer().observeAsState()
+        val activity = LocalContext.current as? Activity
+
+        BackHandler {
+            activity?.finish()
+        }
 
         selectionViewModel.getAllTrips()
 
