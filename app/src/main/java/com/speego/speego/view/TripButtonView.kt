@@ -21,15 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,18 +31,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.speego.speego.viewmodel.TripButtonViewModel
 import com.speego.speego.viewmodel.TripStats
 import java.util.Locale
-import java.util.concurrent.Executors
 
 class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val onClick: () -> Unit,
                      val removeCallback: (() -> Unit)? = null) {
@@ -103,7 +93,7 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val 
 
     @Composable
     fun Description(tripStats: TripStats) {
-        val dateString: String = DateFormat.format("MMM dd, HH:mm", tripStats.startTime).toString()
+        val dateString: String = DateFormat.format("yyyy MMM dd\nHH:mm", tripStats.startTime).toString()
         val totalDurationMinutes = tripStats.duration / (1000 * 60)
         val durationHours = totalDurationMinutes / 60
         val durationMinutes = totalDurationMinutes % 60
