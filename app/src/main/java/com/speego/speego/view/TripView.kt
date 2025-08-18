@@ -9,16 +9,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -29,9 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.speego.speego.database.TripCoordinate
 import com.speego.speego.gnss_service.GnssService
@@ -76,8 +81,7 @@ class TripView {
         GnssService.startForegroundService(context)
         Log.d("TripView", "Current trip name = " + GlobalModel.getCurrentTripName())
         Column(Modifier
-            .fillMaxSize()
-            .background(Color(54, 54, 54, 255)),
+            .fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
 
@@ -110,92 +114,200 @@ class TripView {
     @Composable
     fun BuildDataView(coordinateData: TripCoordinate?) {
         if (coordinateData == null) {
-            Text("Waiting for GNSS fix...")
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Text(
+                        text = "Starting GPS tracking...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
+            }
             return
         }
 
-        // Stretch over full available space
-        Column(Modifier.fillMaxSize()) {
-            // First row - takes up half the height
+        val lastCoordinate = coordinateData
+        val totalDurationMinutes = lastCoordinate.duration / (1000 * 60)
+        val durationHours = totalDurationMinutes / 60
+        val durationMinutes = totalDurationMinutes % 60
+        val totalDurationSeconds = lastCoordinate.duration / 1000
+        val durationSeconds = totalDurationSeconds - totalDurationMinutes * 60
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Top row - Distance and Duration (most important)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Top-left cell
-                Column(
+                // Distance card
+                Card(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Run distance:")
-                    Text("%.2f".format(coordinateData.distance) + " km")
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "🏃",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "%.2f".format(lastCoordinate.distance),
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "km",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                        )
+                    }
                 }
 
-                // Vertical separator line
-                VerticalDivider(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(1.dp),
-                    thickness = DividerDefaults.Thickness, color = Color.Gray
-                )
-
-                // Top-right cell
-                Column(
+                // Duration card
+                Card(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    val totalDurationMinutes = coordinateData.duration / (1000 * 60)
-                    val durationHours = totalDurationMinutes / 60
-                    val durationMinutes = totalDurationMinutes % 60
-                    val totalDurationSeconds = coordinateData.duration / 1000
-                    val durationSeconds = totalDurationSeconds - totalDurationMinutes * 60
-                    Text("Run duration:")
-                    Text("%02d:%02d.%02d h\n".format(durationHours, durationMinutes, durationSeconds))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "⏱️",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (durationHours > 0) {
+                                "%02d:%02d:%02d".format(durationHours, durationMinutes, durationSeconds)
+                            } else {
+                                "%02d:%02d".format(durationMinutes, durationSeconds)
+                            },
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Duration",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
                 }
             }
 
-            // Horizontal separator line
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp),
-                thickness = DividerDefaults.Thickness, color = Color.Gray
-            )
-
-            // Second row - takes up the other half of the height
+            // Bottom row - Current and Average Speed
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Bottom-left cell
-                Column(
+                // Current speed card
+                Card(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Current speed:")
-                    Text("%.2f km/h".format(coordinateData.speed))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "💨",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "%.1f".format(lastCoordinate.speed),
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "km/h - current",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                        )
+                    }
                 }
 
-                // Vertical separator line
-                VerticalDivider(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(1.dp),
-                    thickness = DividerDefaults.Thickness, color = Color.Gray
-                )
-
-                // Bottom-right cell
-                Column(
+                // Average speed card
+                Card(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Average speed:")
-                    Text("%.2f km/h".format(coordinateData.avgspeed))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "📊",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "%.1f".format(lastCoordinate.avgspeed),
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "km/h - average",
+                            style = MaterialTheme.typography.titleMedium,
+                            color =MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                        )
+                    }
                 }
             }
         }

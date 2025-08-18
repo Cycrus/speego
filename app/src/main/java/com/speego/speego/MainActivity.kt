@@ -39,6 +39,7 @@ import com.speego.speego.database.TripDatabaseInterface
 import com.speego.speego.gnss_service.GnssService
 import com.speego.speego.model.GlobalModel
 import com.speego.speego.ui.theme.SpeeGoTheme
+import com.speego.speego.view.BottomBarView
 import com.speego.speego.view.SelectView
 import com.speego.speego.view.SummaryView
 import com.speego.speego.view.TopBarView
@@ -78,6 +79,7 @@ class MainActivity : ComponentActivity() {
     private val tripView = TripView()
     private val summaryView = SummaryView()
     private val topBar = TopBarView()
+    private val bottomBar = BottomBarView()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +90,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             SpeeGoTheme {
                 Scaffold(
-                    topBar = { topBar.Build() },
+                    //topBar = { topBar.Build() },
+                    bottomBar = { bottomBar.Build() }
                 ) { innerPadding ->
                     val lastTrip by startViewModel.getLastTripContainer().observeAsState()
 

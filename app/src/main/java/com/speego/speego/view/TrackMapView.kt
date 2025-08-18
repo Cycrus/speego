@@ -24,7 +24,7 @@ import org.osmdroid.views.overlay.Polyline
 data class TrackSegment(
     val points: List<GeoPoint>,
     val color: Color = Color.Blue,
-    val width: Float = 8f
+    val width: Float = 10f
 )
 
 
@@ -149,6 +149,8 @@ class TrackMapView {
     }
 
     fun updatePositionMarker() {
+        if (this.currCoordinate == null)
+            return
         updatePositionWaypoint(this.currCoordinate!!)
         updateCenter(latitude = this.currCoordinate!!.latitude, longitude = this.currCoordinate!!.longitude)
     }

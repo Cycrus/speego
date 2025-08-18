@@ -82,7 +82,9 @@ object TripDatabaseInterface {
             val newDistanceKm = distanceResults[0] / 1000.0f
             newDistance = prevCoordinate.distance + newDistanceKm
             newSpeed = newDistanceKm / (timeDelta / 3600000.0f) // 3600000 = factor from ms to h
-            newAvgSpeed = prevCoordinate.avgspeed + ((newSpeed - prevCoordinate.avgspeed) / currSequenceNr)
+            //newAvgSpeed = prevCoordinate.avgspeed + ((newSpeed - prevCoordinate.avgspeed) / currSequenceNr)
+            // Compute avgSpeed only based on total moved distance and duration of trip
+            newAvgSpeed = newDistance / (newDuration / 1000.0f / 60.0f / 60.0f)
         }
 
         val newCoordinate: TripCoordinate = TripCoordinate(

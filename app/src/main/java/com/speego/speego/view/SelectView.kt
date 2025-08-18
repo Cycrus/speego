@@ -2,7 +2,6 @@ package com.speego.speego.view
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +36,6 @@ class SelectView {
 
         Column(Modifier
                 .fillMaxSize()
-                .background(Color(54, 54, 54, 255))
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {

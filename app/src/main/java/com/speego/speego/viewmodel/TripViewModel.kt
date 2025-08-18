@@ -37,6 +37,8 @@ class TripViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 TripDatabaseInterface.setTripFinished(trackName)
             }
+            _coordinateListLiveData.postValue(listOf())
+            GlobalModel.getMutableCoordinateContainer().postValue(null)
         }
     }
 }

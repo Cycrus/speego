@@ -85,7 +85,7 @@ class GnssService : Service() {
     }
 
     private fun setupFusedLocation() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 250)
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
             .setMinUpdateDistanceMeters(0f)
             .build()
 
