@@ -142,6 +142,7 @@ class GnssService : Service() {
     override fun onDestroy() {
         //locationManager.removeUpdates(locationListener)
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        GlobalModel.getMutableCoordinateContainer().postValue(null)
         super.onDestroy()
     }
 

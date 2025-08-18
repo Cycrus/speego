@@ -35,7 +35,11 @@ data class TripCoordinate(
 
 @Dao
 interface TripCoordinateDao {
-    @Query("SELECT * FROM TripCoordinate WHERE tripStartTime = :tripStartTime")
+    @Query("""
+        SELECT * FROM TripCoordinate
+        WHERE tripStartTime = :tripStartTime
+        ORDER BY sequenceNr DESC
+        """)
     fun getAllOfTrip(tripStartTime: Long): List<TripCoordinate>
 
     @Query("""

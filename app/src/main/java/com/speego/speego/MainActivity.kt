@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -34,11 +37,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.speego.speego.database.TripDatabaseInterface
 import com.speego.speego.gnss_service.GnssService
+import com.speego.speego.model.GlobalModel
 import com.speego.speego.ui.theme.SpeeGoTheme
 import com.speego.speego.view.SelectView
 import com.speego.speego.view.SummaryView
 import com.speego.speego.view.TopBarView
 import com.speego.speego.view.TripView
+import com.speego.speego.viewmodel.StartViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 
@@ -68,6 +73,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val startViewModel = StartViewModel()
     private val selectView = SelectView()
     private val tripView = TripView()
     private val summaryView = SummaryView()
@@ -84,13 +90,30 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = { topBar.Build() },
                 ) { innerPadding ->
+                    val lastTrip by startViewModel.getLastTripContainer().observeAsState()
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
                         checkAndRequestPermissions()
-                        SetupNavigation()
+
+                        LaunchedEffect(Unit) {
+                            startViewModel.postLastTrip()
+                        }
+
+                        if (lastTrip != null) {
+                            var startView: String = "selectview"
+                            if (!lastTrip!!.finished) {
+                                GlobalModel.setCurrentTripName(lastTrip!!.startTime)
+                                startView = "tripview"
+                            }
+                            SetupNavigation(startView)
+                        }
+                        else {
+                            SetupNavigation("selectview")
+                        }
                     }
                 }
             }
@@ -126,12 +149,12 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SetupNavigation() {
+    fun SetupNavigation(startView: String) {
         val navController = rememberNavController()
 
         NavHost(
             navController = navController,
-            startDestination = "selectview"
+            startDestination = startView
         ) {
             composable("selectview") {
                 selectView.Build(navController)

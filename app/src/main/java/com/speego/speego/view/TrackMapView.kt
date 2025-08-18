@@ -119,7 +119,7 @@ class TrackMapView {
         val color: Color = trackColor
             ?: interpolateColor(
                 minValue = 0.0f,
-                maxValue = 15.0f,
+                maxValue = 20.0f,
                 currentValue = this.currCoordinate!!.speed,
                 startColor = Color.Blue,
                 endColor = Color.Red)
@@ -223,6 +223,7 @@ class TrackMapView {
 
         this.currCoordinate = null
         this.prevCoordinate = null
+        this.positionMarker = null
     }
 
     // Method to fit map to show all waypoints and tracks
