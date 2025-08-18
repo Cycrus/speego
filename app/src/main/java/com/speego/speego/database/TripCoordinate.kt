@@ -38,7 +38,7 @@ interface TripCoordinateDao {
     @Query("""
         SELECT * FROM TripCoordinate
         WHERE tripStartTime = :tripStartTime
-        ORDER BY sequenceNr DESC
+        ORDER BY sequenceNr ASC
         """)
     fun getAllOfTrip(tripStartTime: Long): List<TripCoordinate>
 
@@ -54,11 +54,14 @@ interface TripCoordinateDao {
     fun getLastOfTrip(tripStartTime: Long) : TripCoordinate?
 
     @Query("""
-        SELECT * FROM TripCoordinate 
-        WHERE tripStartTime = :tripStartTime 
-        ORDER BY sequenceNr DESC 
+    SELECT * FROM (
+        SELECT * FROM TripCoordinate
+        WHERE tripStartTime = :tripStartTime
+        ORDER BY sequenceNr DESC
         LIMIT :n
-    """)
+    )
+    ORDER BY sequenceNr ASC
+""")
     fun getLastNOfTrip(tripStartTime: Long, n: Int) : List<TripCoordinate>
 
     @Insert
