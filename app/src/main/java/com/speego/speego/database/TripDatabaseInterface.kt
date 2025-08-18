@@ -51,6 +51,10 @@ object TripDatabaseInterface {
         return tripEntryDao.getAll()
     }
 
+    suspend fun setTripFinished(tripName: Long) {
+        tripEntryDao.setFinished(tripName, true)
+    }
+
     /***************************************/
     /******** Coordinate Operations ********/
     suspend fun createNewCoordinate(tripStartTime: Long,
@@ -101,5 +105,9 @@ object TripDatabaseInterface {
 
     suspend fun getLastCoordinateOfTrip(tripStartTime: Long): TripCoordinate? {
         return coordinateDao.getLastOfTrip(tripStartTime)
+    }
+
+    suspend fun getLastNCoordinatesOfTrip(tripStartTime: Long, n: Int): List<TripCoordinate> {
+        return coordinateDao.getLastNOfTrip(tripStartTime, n)
     }
 }

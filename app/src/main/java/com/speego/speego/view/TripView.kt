@@ -41,20 +41,34 @@ import com.speego.speego.viewmodel.TripViewModel
 class TripView {
     private var tripViewModel = TripViewModel()
     private var mapView: TrackMapView = TrackMapView()
+    private var currSequenceNr: Int = 0
 
 
     @Composable
     fun Build(navController: NavController) {
-        val coordinateData by tripViewModel.getCoordinateContainer().observeAsState()
+        val coordinateUpdatedData by tripViewModel.getCoordinateUpdatedContainer().observeAsState()
+        val coordinateListData by tripViewModel.getCoordinateListContainer().observeAsState()
         val context = LocalContext.current
 
         BackHandler { }
 
-        LaunchedEffect(coordinateData) {
-            coordinateData?.let { coordinate ->
-                mapView.setNewCoordinate(coordinate)
+        // This only checks if new data exists and instructs to fetch the required last n data points
+        // Required for the app to be able to close down in between and still correctly work
+        LaunchedEffect(coordinateUpdatedData) {
+            coordinateUpdatedData?.let { coordinate ->
+                val newSequenceNr: Int = coordinate.sequenceNr
+                val sequenceNrDelta: Int = newSequenceNr - currSequenceNr
+                currSequenceNr = newSequenceNr
+                if (sequenceNrDelta > 0)
+                    tripViewModel.postCoordinateList(GlobalModel.getCurrentTripName(), sequenceNrDelta)
+            }
+        }
+
+        // This gets the last n fetched datapoints and inserts them.
+        LaunchedEffect(coordinateListData) {
+            coordinateListData?.let { coordinateList ->
+                mapView.drawFullTrack(coordinateList)
                 mapView.updatePositionMarker()
-                mapView.updateTrack()
                 mapView.renderMap()
             }
         }
@@ -67,8 +81,8 @@ class TripView {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
 
-            BuildMapView(navController, context, coordinateData)
-            BuildDataView(coordinateData)
+            BuildMapView(navController, context, coordinateUpdatedData)
+            BuildDataView(coordinateUpdatedData)
         }
     }
 
@@ -80,6 +94,7 @@ class TripView {
                 Button(
                     onClick = {
                         GnssService.stopForegroundService(context)
+                        tripViewModel.setTripFinished(GlobalModel.getCurrentTripName())
                         mapView.clearAllOverlays()
                         navController.navigate("summaryview")
                     },
@@ -180,7 +195,7 @@ class TripView {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text("Average speed:")
-                    Text("%.2f km/h".format(coordinateData.speed))
+                    Text("%.2f km/h".format(coordinateData.avgspeed))
                 }
             }
         }

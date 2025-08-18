@@ -78,13 +78,14 @@ class TrackMapView {
         )
     }
 
-    fun drawFullTrack(coordinates: List<TripCoordinate>) {
+    fun drawFullTrack(coordinates: List<TripCoordinate>, rescaleToTrack: Boolean = false) {
         for (coordinate in coordinates) {
             setNewCoordinate(coordinate)
             updateTrack()
         }
 
-        fitToContent()
+        if (rescaleToTrack)
+            fitToContent()
     }
 
     fun setNewCoordinate(coordinate: TripCoordinate) {

@@ -9,6 +9,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
@@ -84,23 +85,25 @@ class GnssService : Service() {
     }
 
     private fun setupFusedLocation() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 250)
             .setMinUpdateDistanceMeters(0f)
             .build()
 
         val coordinateLiveData: MutableLiveData<TripCoordinate> = GlobalModel.getMutableCoordinateContainer()
+        val kalmanFilter = GnssKalmanFilter()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationScope.launch {
                     for (location in locationResult.locations) {
-                        Log.d("FastGPS", "Lat: ${location.latitude}, Lon: ${location.longitude}")
-                        Log.d("FastGPS", "Provider: ${location.provider}, Accuracy: ${location.accuracy}m")
+                        val filteredLocation: Location = kalmanFilter.filterLocation(location)
+                        Log.d("FastGPS", "Lat: ${filteredLocation.latitude}, Lon: ${filteredLocation.longitude}")
+                        Log.d("FastGPS", "Provider: ${filteredLocation.provider}, Accuracy: ${filteredLocation.accuracy}m")
                         val newCoordinate: TripCoordinate = TripDatabaseInterface.createNewCoordinate(
                             tripStartTime = GlobalModel.getCurrentTripName(),
-                            latitude = location.latitude,
-                            longitude = location.longitude,
-                            coordinateTime = location.time
+                            latitude = filteredLocation.latitude,
+                            longitude = filteredLocation.longitude,
+                            coordinateTime = filteredLocation.time
                         )
                         coordinateLiveData.postValue(newCoordinate)
                     }

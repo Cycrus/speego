@@ -52,7 +52,7 @@ class SummaryView {
 
         LaunchedEffect(coordinateData) {
             if (coordinateData != null) {
-                mapView.drawFullTrack(coordinateData!!)
+                mapView.drawFullTrack(coordinateData!!, true)
                 mapView.renderMap()
             }
         }
@@ -182,7 +182,7 @@ class SummaryView {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text("Average speed:")
-                    Text("%.2f km/h".format(coordinateData.last().speed))
+                    Text("%.2f km/h".format(coordinateData.last().avgspeed))
                 }
             }
         }
