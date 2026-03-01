@@ -218,7 +218,12 @@ class TripButtonView(val newTrip: Boolean = false, val startTime: Long = 0, val 
         if (addresses.isNullOrEmpty()) {
             return "---"
         } else {
-            return addresses[0].locality
+            if(addresses[0].locality != null) {
+                return addresses[0].locality
+            }
+            else {
+                return "---"
+            }
         }
     }
 }
